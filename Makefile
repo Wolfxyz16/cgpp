@@ -11,7 +11,7 @@ BUILD_DIR := build
 all: $(BIN_DIR) $(NAME)
 
 $(NAME): $(OBJS)
-	@echo "Compiling..."
+	@echo "Linking..."
 	$(CC) $(CFLAGS) $(OBJS) -o $(BIN_DIR)/cgpp
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -19,5 +19,5 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 clean:
 	@echo "Cleaning ALL"
-	rm build/$(OBJS)
+	rm $(BUILD_DIR)/*
 
