@@ -1,43 +1,76 @@
-*GPP loadGPP(char *route)
+#include "../include/gpp.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+Gpp *loadGPP(char *route)
 {
   FILE *file = fopen(route, "r");
-  char buffer[512];
-  *GPP gpp = (*GPP) malloc(sizeof(GPP));
-  int numNodes, numEdges;
-  int i;
+  Gpp *gpp = (Gpp*) malloc(sizeof(Gpp));
+  int number, length = 0;
+  int i = 0, base = 10;
+  int numbers[256];
+  char *endptr;
+  char line[256];
 
   if (file == NULL) {
     perror("Error leyendo el archivo");
-    return;
+    return NULL;
   }
 
-  fscanf(file, "%d", &numNodes);
-  fscanf(file, "%d", &numEdges);
+  fgets(line, sizeof(line), file);
 
-  gpp->numNodes = numNodes;
-  gpp->numEdges = numEdges;
-  gpp->edges = (**int) malloc(sizeof(*int));
+  gpp->numNodes = strtol(line, &endptr, base);
+  gpp->numEdges = strtol(endptr, &endptr, base);
+  gpp->conn = (Connections*) malloc(sizeof(Connections) * gpp->numNodes);
 
-  for( i = 0 ; i < numNodes; i++ )
-  {
-    // leemos la linea entera y lo cargamos en edges[i]
-    edges[i] = 
+  while ( i < gpp->numNodes ) {
+    length = 0;
+    fgets(line, sizeof(line), file);
+    char *ptr = line;
+
+    while ( (number = strtol(ptr, &ptr, base) ) != 0) { 
+      numbers[length] = number;
+      length++;
+    }
+
+    gpp->conn[i].num = length;
+    gpp->conn[i].connections = (int*) malloc(sizeof(int) * length);
+    // copiamos lo que tenemos en numbers en conn.connections
+    for( int k = 0; k < length; k++ ) gpp->conn[i].connections[k] = numbers[k];
+    i++;
   }
-  
-  for(i = 0; i < n*n; i++)
-  {
-    fscanf(file, "%d", &((*qap)->dis[i]));
-  }
-
+  fclose(file);
+  return gpp;
 }
 
-void freeGPP(GPP *gpp)
+void freeGPP(Gpp *gpp)
 {
-  free(gpp->numNodes);
-  free(gpp->numEdges);
+  for( int i = 0; i < gpp->numNodes; i++ ) free(gpp->conn[i].connections);
+  free(gpp->conn);
+  free(gpp);
 }
 
-int objectiveFunction(GPP *gpp, bool *sol) 
+void printGPP(Gpp *gpp)
+{
+  for( int i = 0; i < gpp->numNodes; i++ )
+  {
+    printf("Node %d connections:% d\n", i + 1, gpp->conn[i].num);
+    printConnections(&gpp->conn[i]);
+  }
+  printf("Numero de nodos: %d\n", gpp->numNodes);
+  printf("Numero de vertices: %d\n", gpp->numEdges);
+}
+
+void printConnections(Connections *conn)
+{
+  for(int i = 0; i < conn->num; i++)
+  {
+    printf("%d  ", conn->connections[i]);
+  }
+  printf("\n");
+}
+
+int objectiveFunction(Gpp *gpp, bool *sol) 
 {
   int i, j;
   int n = gpp->numNodes;
@@ -47,7 +80,7 @@ int objectiveFunction(GPP *gpp, bool *sol)
   {
     for ( j = 0; j < n; j++ )
     {
-      fitness += gpp->edges[i*n+j] * sol[i] * (1 - sol[j]);
+
     }
   }
   return fitness;

@@ -21,3 +21,6 @@ clean:
 	@echo "Cleaning ALL"
 	rm $(BUILD_DIR)/*
 
+debug:
+	@echo "Compiling with debug flags"
+	$(CC) -std=c23 -g -o $(BIN_DIR)/$(NAME)_debug $(SRC)
