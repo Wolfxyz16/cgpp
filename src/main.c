@@ -11,6 +11,9 @@ int main(int argc, char *argv[])
 
   createRandomSolution(sol, gpp->numNodes);
 
+  if( isBalanced(sol) ) printf("La solucion esta balanceada\n");
+  else printf("No esta balanceada\n");
+
   printSolution(sol);
 
   int fitness = objectiveFunction(sol, gpp);
@@ -18,6 +21,7 @@ int main(int argc, char *argv[])
   printf("fitness = %d\n", fitness);
 
   freeGPP(gpp);
+  freeSolution(sol);
   
   return EXIT_SUCCESS;
 }
