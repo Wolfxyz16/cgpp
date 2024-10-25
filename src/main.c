@@ -1,14 +1,21 @@
-#include "../include/gpp.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "../include/gpp.h"
+#include "../include/solution.h"
 
 int main(int argc, char *argv[])
 {
   Gpp *gpp = loadGPP("data/Grid8x8");
 
-  printGPP(gpp);
+  Solution *sol = (Solution*) malloc(sizeof(sol));
 
-  // int fitness = objective_function(gpp, ???);
+  createRandomSolution(sol, gpp->numNodes);
+
+  printSolution(sol);
+
+  int fitness = objectiveFunction(sol, gpp);
+
+  printf("fitness = %d\n", fitness);
 
   freeGPP(gpp);
   

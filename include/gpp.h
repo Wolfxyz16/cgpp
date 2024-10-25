@@ -20,6 +20,5 @@ void printGPP(Gpp *gpp);
 
 void printConnections(Connections *conn);
 
-int objectiveFunction(Gpp *gpp, bool *sol);
-
-bool *createRandomSolution(int num);
+// indica si dos nodos estan conectados en el problema dado
+bool connectionExists(Connections *conn, int node2);

@@ -70,18 +70,11 @@ void printConnections(Connections *conn)
   printf("\n");
 }
 
-int objectiveFunction(Gpp *gpp, bool *sol) 
+bool connectionExists(Connections *conn, int node2)
 {
-  int i, j;
-  int n = gpp->numNodes;
-  int fitness = 0;
-
-  for ( i = 0; i < n; i++ )
+  for( int i = 0; i < conn->num; i++)
   {
-    for ( j = 0; j < n; j++ )
-    {
-
-    }
+    if( conn->connections[i] == node2 ) return true;
   }
-  return fitness;
+  return false;
 }
