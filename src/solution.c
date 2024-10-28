@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include "../include/solution.h"
 #include "../include/gpp.h"
@@ -10,7 +11,7 @@
 void printSolution(Solution *sol)
 {
   for( int i = 0; i < sol->size; i++ ) printf("%d ", sol->data[i]);
-  printf("\n");
+  printf("\nsize: %d\n\n", sol->size);
 }
 
 void freeSolution(Solution *sol)
@@ -78,6 +79,13 @@ int objectiveFunction(Solution *sol, Gpp *gpp)
   return fitness;
 }
 
+Solution *solcpy(Solution *dest, Solution *src)
+{
+  dest->size = src->size;
+  memcpy(dest->data, src->data, sizeof(bool) * dest->size);
+  return dest;
+}
+
 bool isBalanced(Solution *sol)
 {
   int diff, trueCount = 0;
@@ -96,4 +104,17 @@ bool isBalanced(Solution *sol)
   if( isEven && diff == 0 ) return true;
   else if( !isEven && (diff == 1 || diff == -1) ) return true;
   else return false;
+}
+
+bool areEquals(Solution *sol1, Solution *sol2)
+{
+  if( sol1->size != sol2->size ) return false;
+  int length = sol1->size;
+
+  for( int i = 0; i < length; i++ )
+  {
+    if(sol1->data[i] != sol2->data[i]) return false;
+  }
+
+  return true;
 }
