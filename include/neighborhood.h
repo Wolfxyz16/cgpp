@@ -20,5 +20,5 @@ void insertNeighborhood(Neighborhood *neighborhood, Solution *sol);
 // imprime datos del vecindario (cuantos vecinos tiene, ...)
 void descNeighborhood(Neighborhood *neighborhood);
 
-// recupera la mejor solución de un vecindario
-Solution *getBestSolution(Neighborhood *neighborhood, Gpp *gpp);
+// recupera la mejor solución de un vecindario. En *sol deposita la direccion de la mejor solución del vecindario
+int getBestSolution(Solution *sol, Neighborhood *neighborhood, Gpp *gpp);

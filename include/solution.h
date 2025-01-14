@@ -3,10 +3,12 @@
 
 typedef struct Solution {
   bool *data;
-  int size;
+  unsigned int size;
 } Solution;
 
 void printSolution(Solution *sol);
+
+void initializeSolution(Solution *sol, unsigned int size);
 
 void freeSolution(Solution *sol);
 
@@ -15,7 +17,7 @@ void randomMixSolution(Solution *sol);
 
 void swap(bool *a, bool *b);
 
-void createRandomSolution(Solution *sol, int size);
+void createRandomSolution(Solution *sol);
 
 int objectiveFunction(Solution *sol, Gpp *gpp);
 
