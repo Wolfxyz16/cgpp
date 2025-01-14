@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
+#include <unistd.h>
+#include <sys/random.h>
 #include "../include/solution.h"
 #include "../include/gpp.h"
 
@@ -11,7 +12,7 @@
 void printSolution(Solution *sol)
 {
   for( int i = 0; i < sol->size; i++ ) printf("%d ", sol->data[i]);
-  printf("\nsize: %d\n\n", sol->size);
+  printf("\nSize: %d\n", sol->size);
 }
 
 void freeSolution(Solution *sol)
@@ -20,15 +21,21 @@ void freeSolution(Solution *sol)
   free(sol);
 }
 
+void initializeSolution(Solution *sol, unsigned int size)
+{
+  sol->size = size;
+  sol->data = (bool*) malloc(size * sizeof(bool));
+}
+
 void randomMixSolution(Solution *sol)
 {
-  int randomIndex;
+  unsigned int randomIndex;
   int n = sol->size;
-  srand(time(NULL));
   for( int i = 0; i < n; i++ )
   {
     // generamos un índice aleatorio del vector
-    randomIndex = rand() % n;
+    getrandom(&randomIndex, sizeof(int), 0);
+    randomIndex = randomIndex % n;
     // hacemos swap entre la posicion i y la random
     swap(&sol->data[i], &sol->data[randomIndex]);
   }
@@ -40,24 +47,16 @@ void swap(bool *a, bool *b) {
     *b = temp;
 }
 
-void createRandomSolution(Solution *sol, int tam)
+void createRandomSolution(Solution *sol)
 {
-  int halfIndex = tam / 2;
-  sol->data = (bool*) calloc( tam, sizeof(bool) );
+  int size = sol->size;
+  int halfIndex = size / 2;
 
-  if( sol->data == NULL )
+  for( int i = 0; i < size; i++ )
   {
-    perror("Error al asignar memoria");
-    return;
+    if( i < halfIndex ) sol->data[i] = true;
+    else                sol->data[i] = false;
   }
-
-  for( int i = 0; i < tam; i++ )
-  {
-    if( i < halfIndex )  sol->data[i] = true;
-    else                  sol->data[i] = false;
-  }
-
-  sol->size = tam;
   randomMixSolution(sol);
 }
 

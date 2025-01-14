@@ -1,53 +1,99 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <string.h>
+#include <getopt.h>
 #include "../include/gpp.h"
 #include "../include/solution.h"
 #include "../include/neighborhood.h"
+#include "../include/search.h"
 
 int main(int argc, char *argv[])
 {
-  Gpp *gpp = loadGPP("data/Grid8x8");
+  // comprobamos que haya mas de 1 argumento
+  if( argc == 1 ) 
+  {
+    fprintf(stderr, "Not enough arguments. Please use --help\n");
+    exit(EXIT_FAILURE);
+  }
 
-  Solution *sol1 = (Solution*) malloc(sizeof(Solution));
-  Solution *sol2 = (Solution*) malloc(sizeof(Solution));
-  Solution *sol3 = (Solution*) malloc(sizeof(Solution));
+  int opt, index;
+  char *filename = NULL;
+  char *mode_str = (char*) malloc( strlen(argv[1]) );
+  strcpy(mode_str, argv[1]);
 
-  createRandomSolution(sol1, gpp->numNodes);
+  // procesamos las flags
+  static struct option options[] = {
+    {"help", no_argument, 0, 'h'},
+    {"file", required_argument, 0, 'f'},
+    {0, 0, 0, 0}
+  };
 
-  int numNeighbour = (sol1->size * (sol1->size - 1) - (sol1->size - 1));
-  printf("numNeighbour = %d\n", numNeighbour);
+  while( ( opt = getopt_long(argc, argv, "hf:",options, &index) ) != -1 )
+  {
+    switch (opt)
+    {
+      case 'h':
+        printf("Usage: %s [options]\n", argv[0]);
+        exit(EXIT_SUCCESS);
 
-  Neighborhood *hamming = (Neighborhood*) malloc(sizeof(Neighborhood));
-  hamming->size = numNeighbour;
-  hamming->data = (Solution**) malloc(sizeof(Solution*) * 1000000);
+      case 'f':
+        filename = optarg;
+        break;
 
-  Neighborhood *insert = (Neighborhood*) malloc(sizeof(Neighborhood));
-  insert->size = numNeighbour;
-  insert->data = (Solution**) malloc(sizeof(Solution*) * numNeighbour);
+      case '?':
+        fprintf(stderr, "Non valid option\n");
+        exit(EXIT_FAILURE);
 
-  hammingNeighborhood(hamming, sol1, 1);
-  insertNeighborhood(insert, sol1);
+      default:
+        break;
+    }
+  }
 
-  descNeighborhood(hamming);
-  descNeighborhood(insert);
+  // comprobar aqui, porque argv[optind] puede ser null
+  if( argv[optind] == NULL )
+  {
+    fprintf(stderr, "Mode not valid.\n");
+    exit(EXIT_FAILURE);
+  }
 
-  sol3 = getBestSolution(hamming, gpp);
-  sol2 = getBestSolution(insert, gpp);
+  if( mode_str[0] == '-' )
+  {
+    fprintf(stderr, "Mode can not start with '-'\n");
+    exit(EXIT_FAILURE);
+  }
 
-  printf("isBalanced(sol3) = %d\n", isBalanced(sol3));
-  printf("isBalanced(sol2) = %d\n", isBalanced(sol2));
+  // comprobamos que modo (busqueda) ha elegido el usuario
+  char mode = '?';
 
-  printf("objectiveFunction(sol1, gpp) = %d\n", objectiveFunction(sol1, gpp));
-  printf("objectiveFunction(sol3, gpp) = %d\n", objectiveFunction(sol3, gpp));
-  printf("objectiveFunction(sol2, gpp) = %d\n", objectiveFunction(sol2, gpp));
+  if( strcmp(mode_str, "random") == 0 ) mode = 'r';
+  else if ( strcmp(mode_str, "local") == 0 ) mode = 'l';
+  else if ( strcmp(mode_str, "vnd") == 0 ) mode = 'v';
+
+  // si no hemos leido ningun modo valido, salimos
+  if( mode == '?')
+  {
+    fprintf(stderr, "%s not valid.\n", mode_str); 
+    exit(EXIT_FAILURE);
+  }
+
+  Gpp *gpp = loadGPP(filename);
+  unsigned int size = gpp->numNodes;
+
+  Solution *sol;
+
+  sol = (Solution*) malloc(sizeof(Solution));
+
+  initializeSolution(sol, size);
+
+  createRandomSolution(sol);
+
+  if( mode == 'r' ) randomSearch(sol, 1000000000, gpp);
+  if( mode == 'l' ) bestFirstSearch(sol, gpp);
+  if( mode == 'v' ) randomSearch(sol, 100000, gpp);
 
   freeGPP(gpp);
-  freeSolution(sol1);
-  freeSolution(sol2);
-  freeSolution(sol3);
-  freeNeighborhood(insert);
-  freeNeighborhood(hamming);
+  freeSolution(sol);
   
   return EXIT_SUCCESS;
 }

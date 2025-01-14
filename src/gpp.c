@@ -13,8 +13,8 @@ Gpp *loadGPP(char *route)
   char line[256];
 
   if (file == NULL) {
-    perror("Error leyendo el archivo");
-    return NULL;
+    perror("File not found");
+    exit(EXIT_FAILURE);
   }
 
   fgets(line, sizeof(line), file);

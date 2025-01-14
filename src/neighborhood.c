@@ -6,35 +6,34 @@
 
 void freeNeighborhood(Neighborhood *neighborhood)
 {
-  for( int i = 0; i < neighborhood->size; i++ ) free(neighborhood->data[i]);
+  for( int i = 0; i < neighborhood->size; i++ ) freeSolution(neighborhood->data[i]);
   free(neighborhood);
 }
 
 void hammingNeighborhood(Neighborhood *neighborhood, Solution *sol, int k)
 {
+  int i;
   int size = sol->size;
   int count = 0;
   Solution *newSolution = (Solution*) malloc(sizeof(Solution));
   newSolution->data = (bool*) malloc(sizeof(bool) * size);
 
-  for( int i = 0; i < k; i++ )
+  for( i = 0; i < size; i++ )
   {
-    for( int j = 0; j < size; j++ )
-    {
-      // copiamos la solucion original
-      solcpy(newSolution, sol);
+    // copiamos la solucion original
+    solcpy(newSolution, sol);
 
-      // alteramos un bit
-      newSolution->data[j] = !newSolution->data[j];
+    // alteramos un bit
+    newSolution->data[i] = !newSolution->data[i];
 
-      // almacenamos la nueva solucion
-      neighborhood->data[count] = (Solution*) malloc(sizeof(Solution));
-      neighborhood->data[count]->data = (bool*) malloc(sizeof(bool) * size);
-      solcpy(neighborhood->data[count], newSolution);
-      count++;
-    }
+    // almacenamos la nueva solucion
+    neighborhood->data[count] = (Solution*) malloc(sizeof(Solution));
+    neighborhood->data[count]->data = (bool*) malloc(sizeof(bool) * size);
+    solcpy(neighborhood->data[count], newSolution);
+    count++;
+
+    if( k > 1 ) hammingNeighborhood(neighborhood, newSolution, k - 1);
   }
-  neighborhood->size = count;
   freeSolution(newSolution);
 }
 
@@ -101,22 +100,27 @@ void descNeighborhood(Neighborhood *neighborhood)
   printf("This neighborhood has %d solutions.\n", neighborhood->size);
 }
 
-Solution *getBestSolution(Neighborhood *neighborhood, Gpp *gpp)
+// devuelve un entero que indica el fitness y en *sol la mejor solucion encontrada
+int getBestSolution(Solution *sol, Neighborhood *neighborhood, Gpp *gpp)
 {
-  if( neighborhood->size == 0 ) return NULL;
+  Solution *bestSolution = (Solution*) malloc(sizeof(Solution));
+  initializeSolution(bestSolution, gpp->numNodes);
 
-  Solution *bestSolution = neighborhood->data[0];
+  solcpy(bestSolution, neighborhood->data[0]);
   int bestFitness = objectiveFunction(bestSolution, gpp);
-  int newFitness = 0;
+  int newFitness = 9999999;
 
   for( int i = 1; i < neighborhood->size; i++ )
   {
     newFitness = objectiveFunction(neighborhood->data[i], gpp);
-    if( newFitness > bestFitness )
+    if( newFitness < bestFitness )
     {
       newFitness = bestFitness;
       bestSolution = neighborhood->data[i];
     }
   }
-  return bestSolution;
+  
+  solcpy(sol, bestSolution);
+  free(bestSolution);
+  return bestFitness;
 }
